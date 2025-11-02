@@ -1,0 +1,26 @@
+name: Trigger GCP DAG
+
+on:
+  push:
+    branches:
+      - branch-1
+
+jobs:
+  trigger-dag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Trigger Cloud Composer DAG
+        run: |
+          gcloud composer environments run test-env \
+            --location=australia-southeast1 dags trigger -- hello_dag
+        env:
+          CLOUDSDK_CORE_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
